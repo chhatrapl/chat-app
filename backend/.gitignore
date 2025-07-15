@@ -1,0 +1,9 @@
+# Node modules
+node_modules/
+
+# dotenv
+.env
+
+# Uploads / local files
+public/temp/
+uploads/

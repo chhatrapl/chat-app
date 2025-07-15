@@ -3,18 +3,22 @@ import mongoose, { Schema } from "mongoose";
  const userSchema = new Schema({
     name:{
         type:String,
-        require:true
+        required:true
     },
     mobileNumber:{
-        tyep:String,
-        require:true,
+        type:String,
+        index:true,
         unique:true,
-        index:true
+        required:true
+    },
+    password:{
+        type:String,
+         required:true
     },
     profilePic:{
         type:String,
-        require:true
+        required:true
     }
-})
+},{timestamps:true})
 
 export const User = mongoose.model("User", userSchema);
