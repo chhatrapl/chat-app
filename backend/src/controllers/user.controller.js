@@ -1,5 +1,6 @@
 import { User } from "../models/user.model.js";
 import { genrateAccessToken } from "../utils/genrateAccessToken.js";
+import { genrateAccessAndRefreshToken } from "../utils/genrateAccessTokenAndRefreshToken.js";
 import {genrateRefreshToken} from "../utils/genrateRefreshToken.js";
 import bcrypt from "bcrypt";
 
@@ -106,4 +107,61 @@ export const signup = async (req, res) => {
       }
 
 
+   };
+
+ export const login = async (req, res) =>{
+   try {
+      
+             const {mobileNumber, password} = req.body;
+              console.log("type :", typeof mobileNumber);
+
+             if([mobileNumber, password].some(field => typeof field !== "string" || field.trim() === "")){
+                 console.log("All fields must be valid strings");
+                 return res.status(400).json({ success: false, message: "All fields must be non-empty strings" });
+             }
+          
+             const user = await User.findOne({mobileNumber});
+   
+             if(!user){
+                      console.log("Theres no users with this mobile number!");
+                 return res.status(400).json({ success: false, message: "Theres no users with this mobile number!" });
+             }
+   
+             const isPasswordCorrect = await bcrypt.compare(password, user.password);
+   
+             if(!isPasswordCorrect){
+                     console.log("password is incorrect!");
+                 return res.status(400).json({ success: false, message: "password is incorrect!" });
+             }
+   
+               const loggedInUser = await User.findOne({_id:user._id}).select("-password, -refreshToken");
+   
+               try {
+                  const {accessToken, refreshToken} = await genrateAccessAndRefreshToken(user._id);
+   
+             const options = {
+              httpOnly:true,
+              secure:true
+            }
+   
+            return res.status(201).cookie("accessToken", accessToken, options)
+                                  .cookie("refreshToken", refreshToken, options)
+                                  .json({
+                                    success:true,
+                                    message:"user loggedIn successfully.",
+                                    user:loggedInUser, accessToken, refreshToken
+                                  })
+               } catch (error) {
+                   return res.status(400).json({success:false, message:"somthing err in genrating tokens!"})
+               }
+   
+   } catch (error) {
+      
+     return res.status(500).json({
+      success:false,
+      message:"something went wrong while login!",
+      error: error.message || error.toString() || "unknown err"
+     })
+        
+   }
    };
