@@ -2,18 +2,19 @@ import { User } from "../models/user.model.js";
 import { genrateAccessToken } from "../utils/genrateAccessToken.js";
 import { genrateAccessAndRefreshToken } from "../utils/genrateAccessTokenAndRefreshToken.js";
 import {genrateRefreshToken} from "../utils/genrateRefreshToken.js";
+import {uploadToCloudinary }from "../utils/cloudinary.js"
 import bcrypt from "bcrypt";
 
 export const signup = async (req, res) => {
       try {
          let {name, mobileNumber, password} = req.body;
 
-         console.log(name)
-         console.log("type", typeof name)
-         console.log(password)
-         console.log("type", typeof password)
-         console.log(mobileNumber);
-       console.log("type", typeof mobileNumber);
+       //  console.log(name)
+      //   console.log("type", typeof name)
+       //  console.log(password)
+      //   console.log("type", typeof password)
+       //  console.log(mobileNumber);
+    //   console.log("type", typeof mobileNumber);
 
    if ([name, mobileNumber, password].some(field => typeof field !== "string" || field.trim() === "")) {
   console.log("All fields must be valid strings");
@@ -27,13 +28,13 @@ export const signup = async (req, res) => {
       
         console.log("mobile number is valid");
  
-         console.log("user checking....")
+      //   console.log("user checking....")
         const existingUser = await User.findOne({mobileNumber});
         if(existingUser){
          return res.status(409).json({ message:"user already existed with this number!"});
         };
    
-        console.log("profilePic checking.....")
+       // console.log("profilePic checking.....")
         const profilePicLocalPath = req.files?.profilePic[0]?.path;
         if(!profilePicLocalPath){
          return res.status(401).json({success:false, message:"profilePic is required!"})
@@ -41,12 +42,19 @@ export const signup = async (req, res) => {
         console.log("profile pic thik hai ")
    
        try {
+
+     const profilepic = await uploadToCloudinary(profilePicLocalPath); 
+     console.log(profilepic.url);
+     if(!profilepic.url || !profilepic){
+      console.log("profilepic url nahi mil rha")
+     } 
+
           const hashedPassword = await bcrypt.hash(password, 10);
      
           const user = await User.create({
            name,
            mobileNumber,
-           profilePic:profilePicLocalPath,
+           profilePic:profilepic.url,
            password:hashedPassword
           });
      
@@ -109,6 +117,7 @@ export const signup = async (req, res) => {
 
    };
 
+
  export const login = async (req, res) =>{
    try {
       
@@ -134,7 +143,7 @@ export const signup = async (req, res) => {
                  return res.status(400).json({ success: false, message: "password is incorrect!" });
              }
    
-               const loggedInUser = await User.findOne({_id:user._id}).select("-password, -refreshToken");
+               const loggedInUser = await User.findOne({_id:user._id}).select("-password -refreshToken");
    
                try {
                   const {accessToken, refreshToken} = await genrateAccessAndRefreshToken(user._id);
@@ -164,4 +173,45 @@ export const signup = async (req, res) => {
      })
         
    }
+   };
+
+
+export const logout = async(req, res)=>{
+ try {
+   User.findById(req.user._id,{$set:{refreshToken:undefined}},{new:true})
+ 
+   const options = {
+     httpOnly:true,
+     secure:true
+   }
+ 
+   return res.status(200).clearCookie("accessToken", options)
+                         .clearCookie("refreshToken", options)
+                         .json({success:true, message:"user logedOut successfully."})
+ 
+ } catch (error) {
+  
+  return res.status(500).json({success:false, message:"somting went wrong while logging Out."})
+
+ }
+
+};
+
+
+export const getAllUsers = async (req, res) =>{
+    try {
+         
+      const currentUser = await User.findById(req.user._id).select("name profilePic");
+      const otherUsers = await User.find({_id:{$ne: req.user._id}}).select("name profilePic");
+
+      return res.status(200).json({
+          currentUser,
+          otherUsers
+      });
+    } catch (error) {
+      return res.status(500).json({
+        message:"somthing went wrong!",
+        error: error.message || error.toString()
+      })
+    }
    };

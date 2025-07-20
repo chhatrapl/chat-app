@@ -144,6 +144,7 @@
     </div>
 
     <button type="submit" class="login-btn">SignUp</button>
+    
   </form>
 
   <script>
@@ -187,7 +188,7 @@
          const data = await res.json();
 
          if (res.ok) {
-    alert('Signup successful!');
+  window.location.href = "/main.html";
   } else {
     alert('Signup failed: ' + data.message);
   }

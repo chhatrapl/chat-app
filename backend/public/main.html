@@ -1,11 +1,219 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Chat App Main Page</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Segoe UI", sans-serif;
+    }
+
+    body {
+      background-color: #c7d5eb;
+    }
+
+    .header {
+      background-color: #4fc3f7;
+      height: 180px;
+      border-bottom-left-radius: 50% 40px;
+      border-bottom-right-radius: 50% 40px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 10;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .profile-container {
+      position: absolute;
+      top: 120px;
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+    }
+
+    .profile-container img {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background-color: #ddd;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      object-fit: cover;
+    }
+
+    .user-name {
+      margin-top: 10px;
+      font-size: 18px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .logout-btn {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      padding: 8px 16px;
+      background-color: rgb(221, 217, 217);
+      border: 2px solid #0077cc;
+      border-radius: 20px;
+      color: #0077cc;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    .logout-btn:hover {
+      background-color: #0077cc;
+      color: white;
+    }
+
+    .content {
+      margin-top: 300px; 
+      padding: 10px 20px;
+    }
+
+    .user-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .user-card {
+      display: flex;
+      align-items: center;
+      background-color: rgb(228, 232, 250);
+      border-radius: 12px;
+      padding: 10px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .user-card:hover {
+      transform: scale(1.02);
+    }
+
+    .user-card img {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-right: 15px;
+    }
+
+    .user-card span {
+      font-size: 16px;
+      color: #333;
+      font-weight: 500;
+    }
+
+  </style>
 </head>
 <body>
-    this is mian page
+
+  <div class="header">
+    <button class="logout-btn" id="logoutBtn">Logout</button>
+    <div class="profile-container" id="profile-container">
+     
+      <div class="user-name" id="user-name"></div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="user-list" id="userList">
+      
+    </div>
+    </div>
+ 
+  <script>
+  
+ const profilecontainer = document.getElementById("profile-container");
+
+    let currentUser = null;
+
+   window.onload = async ()=>{
+
+   const token = localStorage.getItem("token");
+
+   const res = await fetch("http://localhost:3000/api/v1/users/allUser", {
+  method: "GET",
+  headers: {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${token}`  // <-- Yeh zaruri hai
+  }
+});
+
+     const data = await res.json();
+     console.log("Status:", res.status);
+    console.log(data);
+
+    currentUser = data.currentUser;
+   // console.log(currentUser);
+   const img = document.createElement("img");
+    img.src = currentUser.profilePic;
+    img.alt="profilePic";
+   profilecontainer.appendChild(img);
+   const username = document.createElement("div");
+   username.textContent=currentUser.name;
+   username.classList.add("user-name")
+   profilecontainer.appendChild(username);
+
+
+   const otherUsers = data.otherUsers.filter( user => user._id !== currentUser._id);
+   const userList = document.getElementById("userList");
+
+      otherUsers.forEach(user => {
+         const card = document.createElement("div");
+         card.className = "user-card";
+         card.setAttribute("data-userId", user._id);
+            
+         card.innerHTML = `
+          <img src="${user.profilePic}" alt="${user.name}"/>
+          <span>${user.name}</span>
+         `
+
+         userList.appendChild(card);
+      });
+
+
+  
+   }
+
+   /////////////////////////////////////////////////////////////////////////////////////////////////////
+    const btn = document.getElementById("logoutBtn");
+     btn.addEventListener("click", async (e)=>{
+
+  try {
+               const res = await fetch("http://localhost:3000/api/v1/users/logout",{
+                method:"POST",
+                credentials:"include"
+               });
+   
+       const data = await res.json()
+  
+      if (res.ok) {
+        
+        // Redirect to login page
+        window.location.href = "/login.html"; // ya jo bhi tumhara login page ho
+      } else {
+        alert(data.message || "Logout failed");
+      }
+  } catch (error) {
+     console.error("Logout error:", err);
+    alert("Something went wrong");
+  }
+     })
+
+    
+
+  </script> 
+
+
 </body>
 </html>

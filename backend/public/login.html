@@ -103,6 +103,7 @@
     </div>
 
     <button type="submit" class="login-btn">LogIn</button>
+
   </form>
 
   <script>
@@ -127,7 +128,7 @@
          const data = await res.json();
 
          if(res.ok){
-          alert("user loggedin successfull");
+          window.location.href = "/main.html";
          } else {
           alert("login faild :", data.message);
          };

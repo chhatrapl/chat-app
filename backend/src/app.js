@@ -23,6 +23,8 @@ app.use(cookieParser());
 // API routes
 app.use("/api/v1/users", userRouter);
 
+
+
 // Default route (serve index.html on root)
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "../public/main.html"));
