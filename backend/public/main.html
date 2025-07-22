@@ -181,9 +181,17 @@
          userList.appendChild(card);
       });
 
+  const allCards = document.querySelectorAll(".user-card");
 
+  allCards.forEach((card)=>{
+       
+    card.addEventListener(`click`, ()=>{
+      const username = card.getAttribute("data-userId");
+      window.location.href=`/chatapp/${username}`;
+    })
+  })
   
-   }
+   };
 
    /////////////////////////////////////////////////////////////////////////////////////////////////////
     const btn = document.getElementById("logoutBtn");

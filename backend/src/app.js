@@ -38,6 +38,11 @@ app.get("/login", (req, res) => {
   res.sendFile(path.join(__dirname, "../public/login.html"));
 });
 
+app.get("/chatapp/:username", (req, res) => {
+  const {username} = req.params;
+  res.sendFile(path.join(__dirname, "../public/chatapp.html"));
+});
+
 export default app;
 
 

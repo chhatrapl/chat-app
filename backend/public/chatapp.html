@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>chatpp</title>
+     <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Segoe UI", sans-serif;
+    }
+
+    body {
+      background-color: #c7d5eb;
+    }
+
+    .header {
+      background-color: #4fc3f7;
+      height: 180px;
+      border-bottom-left-radius: 50% 40px;
+      border-bottom-right-radius: 50% 40px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 10;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .profile-container {
+      position: absolute;
+      top: 120px;
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+    }
+
+    .profile-container img {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background-color: #ddd;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      object-fit: cover;
+    }
+
+    .user-name {
+      margin-top: 10px;
+      font-size: 18px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .logout-btn {
+      position: absolute;
+      top: 15px;
+      
+      padding: 8px 16px;
+      background-color: rgb(221, 217, 217);
+      border: 2px solid #0077cc;
+      border-radius: 20px;
+      color: #0077cc;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    .logout-btn:hover {
+      background-color: #0077cc;
+      color: white;
+    }
+
+ /* Main container full screen */
+.content {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Chat message area */
+#chat-box {
+  flex: 1;
+  padding: 10px;
+  padding-top: 300px;
+  overflow-y: auto;
+  background-color: #cef3f5;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sendmsg {
+  align-self: flex-end; /* ✅ Will align message bubble to right */
+  background-color: #4fc3f7; /* WhatsApp green */
+  padding: 10px 15px;
+  margin: 5px 10px;
+  border-radius: 15px 15px 0px 15px;
+  max-width: 70%;
+  font-size: 16px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  word-wrap: break-word;
+}
+
+.receivemsg {
+  align-self: flex-start;             /* 👈 Push to left */
+  background-color: #4fc3f7;          /* White bubble */
+  padding: 10px 15px;
+  margin: 5px 10px;
+  border-radius: 15px 15px 15px 0px;  /* Left style */
+  max-width: 70%;
+  font-size: 16px;
+  color: #000;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  word-wrap: break-word;
+}
+
+/* Chat form fixed at bottom */
+form {
+  display: flex;
+  padding: 10px;
+  background-color: #d8d3d3;
+  border-top: 1px solid #5a5656;
+}
+
+form input {
+  flex: 1;
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 20px;
+  border: 1px solid #332c2c;
+  background-color: rgb(245, 236, 236);
+  outline: none;
+}
+
+form button {
+  margin-left: 10px;
+  padding: 10px 20px;
+  background-color: #409cc7;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+}
+  </style>
+</head>
+<body>
+      <div class="header">
+    <button class="logout-btn" id="backBtn">Back</button>
+    <div class="profile-container" id="profile-container">
+    </div>
+  </div>
+
+  <div class="content">
+    <div id="chat-box">
+    </div>
+
+    <form action="" id="form">
+      <input type="text" id="input" placeholder="type here.....">
+      <button id="submit">send</button>
+    </form>
+    </div>
+  
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  const socket = io();
+</script>
+
+
+    <script>
+      window.onload= async ()=>{
+
+const token = localStorage.getItem("token");
+const res = await fetch("http://localhost:3000/api/v1/users/allUser", {
+  method: "GET",
+  headers: {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${token}`  // <-- Yeh zaruri hai
+  }
+});
+
+     const data = await res.json();
+     const currentUser = data.currentUser;
+    // console.log(currentUser.name);
+     const otherUsers = data.otherUsers;
+    // console.log("otherusers : ",otherUsers)
+   //  console.log("Status:", res.status);
+   // console.log(data);
+
+     const uid = window.location.pathname.split("/").pop();
+     //console.log(uid);
+
+     const user = otherUsers.find((u) => u._id === uid);
+
+       if(user){
+        const profilecontainer = document.getElementById("profile-container");
+        const img = document.createElement("img");
+         img.src = user.profilePic;
+         img.alt= "profilePic";
+      const username = document.createElement("div");
+      username.textContent=user.name;
+   username.classList.add("user-name")
+       profilecontainer.appendChild(img)
+         //profilecontainer.appendChild(username);
+    }else{
+      console.log("user nahi hai ")
+    }
+
+      const btn = document.getElementById("backBtn");
+      btn.addEventListener("click", (e)=>{
+        e.preventDefault();
+        window.location.href ="/main.html";
+      })
+
+    const socket = io();
+    const submit = document.getElementById("form");
+  
+const roomId = [currentUser.name, user.name].sort().join("-");
+      // console.log(roomId)
+      socket.emit("joinRoom", roomId);
+    submit.addEventListener("submit", (e)=>{
+      e.preventDefault();
+       let message = document.getElementById("input").value.trim();
+      if(message === ""){
+        console.log("msg is impty");
+        return;
+      }
+
+       socket.emit("message",({message, roomId, sender:currentUser.name}));
+      console.log("send message:",message);
+      document.getElementById("input").value = "";
+      const div = document.createElement("div");
+      div.textContent= message;
+      div.classList.add("sendmsg")
+      document.getElementById("chat-box").appendChild(div);
+    });
+
+         socket.on("receiveMessage",({message,sender})=>{
+          if(currentUser.name === sender) return;
+
+    const div = document.createElement("div");
+      div.textContent= message;
+      div.classList.add("receivemsg")
+      document.getElementById("chat-box").appendChild(div);
+      console.log("recived message: ",message);
+    });
+      }
+    </script>
+</body>
+</html>
