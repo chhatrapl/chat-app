@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Registration Form</title>
+  <title>Chat App</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -116,6 +116,15 @@
     .options a:hover {
       text-decoration: underline;
     }
+
+    form a{
+      color: white;
+    }
+  
+     .error-msg h3{
+          color: red;
+     }
+
   </style>
 </head>
 <body>
@@ -144,6 +153,8 @@
     </div>
 
     <button type="submit" class="login-btn">SignUp</button>
+    <div id="errore"></div>
+    <a href="/login.html">Already have an account? click here</a>
     
   </form>
 
@@ -188,9 +199,13 @@
          const data = await res.json();
 
          if (res.ok) {
-  window.location.href = "/main.html";
+  window.location.href = "/login.html";
   } else {
-    alert('Signup failed: ' + data.message);
+  const msg = document.createElement("div");
+  msg.innerHTML=`<h3>${data.message}</h3>`;
+  msg.classList.add("error-msg")
+  document.getElementById("errore").appendChild(msg);
+   // alert('Signup failed: ' + data.message);
   }
 
 

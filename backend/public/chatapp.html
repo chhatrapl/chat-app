@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>chatpp</title>
+    <title>Chat App</title>
      <style>
     * {
       margin: 0;
@@ -172,6 +172,10 @@ form button {
     <script>
       window.onload= async ()=>{
 
+        function scrollToBottom() {
+          document.getElementById("chat-box").scrollTop =  document.getElementById("chat-box").scrollHeight;
+        };
+
 const token = localStorage.getItem("token");
 const res = await fetch("http://localhost:3000/api/v1/users/allUser", {
   method: "GET",
@@ -235,6 +239,7 @@ const roomId = [currentUser.name, user.name].sort().join("-");
       div.textContent= message;
       div.classList.add("sendmsg")
       document.getElementById("chat-box").appendChild(div);
+      scrollToBottom();
     });
 
          socket.on("receiveMessage",({message,sender})=>{
@@ -244,6 +249,7 @@ const roomId = [currentUser.name, user.name].sort().join("-");
       div.textContent= message;
       div.classList.add("receivemsg")
       document.getElementById("chat-box").appendChild(div);
+      scrollToBottom();
       console.log("recived message: ",message);
     });
       }

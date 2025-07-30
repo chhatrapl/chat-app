@@ -4,6 +4,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import userRouter from "./routes/user.route.js";
 
+
 const app = express();
 
 // __dirname setup (because we are using ES modules)
@@ -24,10 +25,15 @@ app.use(cookieParser());
 app.use("/api/v1/users", userRouter);
 
 
-
 // Default route (serve index.html on root)
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "../public/main.html"));
+  const token = req.cookies?.accessToken;
+  if(token){
+     res.sendFile(path.join(__dirname, "../public/main.html"));
+  }else{
+     res.sendFile(path.join(__dirname, "../public/login.html"));
+  }
+ 
 });
 
 app.get("/signup", (req, res) => {
@@ -40,7 +46,13 @@ app.get("/login", (req, res) => {
 
 app.get("/chatapp/:username", (req, res) => {
   const {username} = req.params;
-  res.sendFile(path.join(__dirname, "../public/chatapp.html"));
+    const token = req.cookies?.accessToken;
+    if(token){
+        res.sendFile(path.join(__dirname, "../public/chatapp.html"));
+    } else{
+        res.sendFile(path.join(__dirname, "../public/login.html"));
+    }
+  
 });
 
 export default app;

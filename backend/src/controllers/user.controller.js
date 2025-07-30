@@ -147,14 +147,22 @@ export const signup = async (req, res) => {
    
                try {
                   const {accessToken, refreshToken} = await genrateAccessAndRefreshToken(user._id);
-   
-             const options = {
+            const isProduction = process.env.NODE_ENV === "production";
+             const option1 = {
               httpOnly:true,
-              secure:true
+              secure:true,
+              sameSite:"strict",
+              maxAge:15*60*1000
+            }
+             const option2 = {
+              httpOnly:true,
+              secure:true,
+              sameSite:"strict",
+              maxAge:7*24*60*60*1000
             }
    
-            return res.status(201).cookie("accessToken", accessToken, options)
-                                  .cookie("refreshToken", refreshToken, options)
+            return res.status(201).cookie("accessToken", accessToken, option1)
+                                  .cookie("refreshToken", refreshToken, option2)
                                   .json({
                                     success:true,
                                     message:"user loggedIn successfully.",
