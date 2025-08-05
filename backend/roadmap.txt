@@ -1,0 +1,14 @@
+window.onload(){
+    let res = fetch ("getallusers")
+    if(status === 401){
+        const refreshres = fetch("refresh-token");
+
+        let res = fetch("getallusers") 
+        then theres a code how to use data commig from this api
+    }else{
+        theres a code how to use data comming from first fetch api 
+    }
+}
+
+
+this is just plan how thing works after access token expire we refresh the page and then status === 401 part will work is this plan is okey

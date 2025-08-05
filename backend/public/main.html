@@ -137,96 +137,75 @@
     </div>
     </div>
  
-  <script>
-  
- const profilecontainer = document.getElementById("profile-container");
-
-    let currentUser = null;
-
-   window.onload = async ()=>{
-
-   const token = localStorage.getItem("token");
-
-   const res = await fetch("http://localhost:3000/api/v1/users/allUser", {
-  method: "GET",
-  headers: {
-    "Content-Type": "application/json",
-    Authorization: `Bearer ${token}`  // <-- Yeh zaruri hai
-  }
-});
-
-     const data = await res.json();
-     console.log("Status:", res.status);
-    console.log(data);
-
-    currentUser = data.currentUser;
-   // console.log(currentUser);
-   const img = document.createElement("img");
-    img.src = currentUser.profilePic;
-    img.alt="profilePic";
-   profilecontainer.appendChild(img);
-   const username = document.createElement("div");
-   username.textContent=currentUser.name;
-   username.classList.add("user-name")
-   profilecontainer.appendChild(username);
-
-
-   const otherUsers = data.otherUsers.filter( user => user._id !== currentUser._id);
-   const userList = document.getElementById("userList");
-
-      otherUsers.forEach(user => {
-         const card = document.createElement("div");
-         card.className = "user-card";
-         card.setAttribute("data-userId", user._id);
-            
-         card.innerHTML = `
-          <img src="${user.profilePic}" alt="${user.name}"/>
-          <span>${user.name}</span>
-         `
-
-         userList.appendChild(card);
-      });
-
-  const allCards = document.querySelectorAll(".user-card");
-
-  allCards.forEach((card)=>{
-       
-    card.addEventListener(`click`, ()=>{
-      const username = card.getAttribute("data-userId");
-      window.location.href=`/chatapp/${username}`;
-    })
-  })
-  
-   };
-
-   /////////////////////////////////////////////////////////////////////////////////////////////////////
-    const btn = document.getElementById("logoutBtn");
-     btn.addEventListener("click", async (e)=>{
-
-  try {
-               const res = await fetch("http://localhost:3000/api/v1/users/logout",{
-                method:"POST",
-                credentials:"include"
-               });
+<script>
    
-       const data = await res.json()
+  window.onload= async (e)=>{
   
-      if (res.ok) {
-        
-        // Redirect to login page
-        window.location.href = "/login.html"; // ya jo bhi tumhara login page ho
-      } else {
-        alert(data.message || "Logout failed");
-      }
-  } catch (error) {
-     console.error("Logout error:", err);
-    alert("Something went wrong");
-  }
-     })
+try {
+  const res = await fetch("http://localhost:3000/api/v1/users/allUser",{
+    method:"GET",
+    headers:{
+      "Content-Type":"application/json"
+    },
+    credentials:"include"
+  });
 
+
+ if(res.status == 401){
+  try {
     
+    const refreshRes = await fetch("http://localhost:3000/api/v1/auth/refresh-token",{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json"
+      },
+      credentials:"include"
+    });
 
-  </script> 
+   if(refreshRes.ok){
+     
+     const datares = await fetch ("http://localhost:3000/api/v1/users/alluser",{
+      method:"GET",
+      headers:{
+        "Content-Type":"application/json"
+      },
+      credentials:"include"
+     })
+       
+     const dataRes = datares.json();
+     console.log(dataRes);
+
+   }
+
+
+
+  } catch (error) {
+    console.error(error)
+  }
+ }
+  
+  const data = await res.json();
+  console.log(data)
+  const currentUser = data.currentUser;
+  const otherUsers = data.otherUsers;
+ console.log(currentUser.profilePic);
+
+
+
+  const img = document.createElement("img");
+
+ img.src = currentUser.profilePic;
+ document.getElementById("profile-container").appendChild(img);
+
+
+} catch (error) {
+  console.error(error)
+}
+
+
+  };
+
+</script>
 
 
 </body>

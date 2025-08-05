@@ -1,7 +1,5 @@
 import { User } from "../models/user.model.js";
-import { genrateAccessToken } from "../utils/genrateAccessToken.js";
 import { genrateAccessAndRefreshToken } from "../utils/genrateAccessTokenAndRefreshToken.js";
-import {genrateRefreshToken} from "../utils/genrateRefreshToken.js";
 import {uploadToCloudinary }from "../utils/cloudinary.js"
 import bcrypt from "bcrypt";
 
@@ -59,42 +57,32 @@ export const signup = async (req, res) => {
           });
      
      
+        const {accessToken, refreshToken} = await genrateAccessAndRefreshToken(user._id);
            const isProduction = process.env.NODE_ENV === "production";
-     
-     
-           const accessToken = genrateAccessToken(user._id);
-           console.log("accesstoken :" , accessToken);
-     
-            res.cookie("accesstoken", accessToken,{
+
+          const option1 = {
+            httpOnly:true,
+            secure:true,
+            sameSite:"Strict",
+            maxAge:1*60*1000
+                  
+           }
+
+            const option2 = {
               httpOnly:true,
-              sameSite:"Strict",
-              secure:isProduction,
-              maxAge:15*60*60*1000
-            });
-     
-            console.log("access cookie set successfully");
-     
-            const refreshToken = genrateRefreshToken(user._id);
-            console.log("refreshtoken: ",refreshToken);
-           res.cookie("refreshToken", refreshToken,{
-              httpOnly:true,
-              secure:isProduction,
-              sameSite:"Strict",
+              secure:true,
+              sameSite:"strict",
               maxAge:7*24*60*60*1000
-           })
-           
-           console.log("refreshtoken set successfully.");
-     
-     return res.status(201).json({
-        success:true,   
-         message:"user created successfully",
-         user:{
-           _id:user._id,
-           name:user.name,
-           mobileNumber:user.mobileNumber,
-            profilePic: user.profilePic
-         }
-     })
+            }
+
+            return res.status(201).cookie("refreshToken", refreshToken,option1)
+                                  .cookie("accessToken", accessToken,option2)
+                                  .json({
+                                   success:true,
+                                   message:"user created successfull",
+                                   user: user
+                                   })
+
      
        } catch (error) {
          return res.status(500).json(
@@ -152,7 +140,7 @@ export const signup = async (req, res) => {
               httpOnly:true,
               secure:true,
               sameSite:"strict",
-              maxAge:15*60*1000
+              maxAge:1*60*1000
             }
              const option2 = {
               httpOnly:true,
@@ -166,7 +154,7 @@ export const signup = async (req, res) => {
                                   .json({
                                     success:true,
                                     message:"user loggedIn successfully.",
-                                    user:loggedInUser, accessToken, refreshToken
+                                    user:loggedInUser
                                   })
                } catch (error) {
                    return res.status(400).json({success:false, message:"somthing err in genrating tokens!"})

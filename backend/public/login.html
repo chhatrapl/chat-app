@@ -89,6 +89,10 @@
       color: white;
     }
 
+    .error{
+      color: red;
+    }
+
   </style>
 
 </head>
@@ -110,6 +114,7 @@
 
     <button type="submit" class="login-btn">LogIn</button>
      <a href="/signup">Dont have an account? click here</a>
+     <div id="showerr"></div>
   </form>
 
   <script>
@@ -136,7 +141,11 @@
          if(res.ok){
           window.location.href = "/main.html";
          } else {
-          alert("login faild :", data.message);
+          
+          const errdiv = document.createElement("div");
+            errdiv.textContent=data.message;
+            errdiv.classList.add("error");
+            document.getElementById("showerr").appendChild(errdiv);
          };
 
     })

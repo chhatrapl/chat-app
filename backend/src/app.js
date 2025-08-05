@@ -3,6 +3,7 @@ import cookieParser from "cookie-parser";
 import path from "path";
 import { fileURLToPath } from "url";
 import userRouter from "./routes/user.route.js";
+import authRouter from "./routes/auth.route.js"; 
 
 
 const app = express();
@@ -23,6 +24,8 @@ app.use(cookieParser());
 
 // API routes
 app.use("/api/v1/users", userRouter);
+
+app.use("/api/v1/auth", authRouter)
 
 
 // Default route (serve index.html on root)

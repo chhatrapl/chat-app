@@ -18,6 +18,9 @@ import mongoose, { Schema } from "mongoose";
     profilePic:{
         type:String,
         required:true
+    },
+    refresToken:{
+        type:String
     }
 },{timestamps:true})
 
