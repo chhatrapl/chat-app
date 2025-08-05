@@ -1,0 +1,30 @@
+// export const refreshAccessToken = async ()=>{
+
+//     incomingRefrshToken = req.cookies.refreshToken;
+    
+//     if(!incomingRefrshToken){
+//         console.error(error,"unauhtorize request");
+//     }
+// try {
+//     const dedocedToken = await jwt verify(incomingRefrshToken, process.env.refreshTokenSecrate);
+//      const userId = dedocedToken.user._id;
+//      const user = await findByid(userId);
+//      const refreshToken = user.refreshToken;
+   
+//    const isRightToken = await bcrypt.compare(refreshToken, incomingRefreshToken);
+
+//    if(isRightToken){
+//     const{refreshToken, accessToken} = await genrateAccessAndRefreshToken(userId);
+//     return res.status(201).cookie("accessToken", accessToken)
+//                            .cookie("refreshToken",refreshToken)
+//                            .josn({
+//                               success:"true",
+//                               message:"token refreshed successfully",
+//                               user:user
+//                            })
+//    }
+
+// } catch (error) {
+//     console.error(error)
+// }
+// }

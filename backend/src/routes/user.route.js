@@ -11,7 +11,7 @@ router.post("/signup", upload.fields([
     {name:"profilePic", maxCount:1}
 ]),signup);
 router.post("/login",login);
-router.post("/logout", isAuthenticated,logout);
+router.post("/logout",isAuthenticated,logout);
 router.get("/allUser", isAuthenticated, getAllUsers);
 
 

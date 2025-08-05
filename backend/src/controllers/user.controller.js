@@ -24,7 +24,7 @@ export const signup = async (req, res) => {
          return res.status(401).json({success:false, message:"this is not a valid number"})
         };
       
-        console.log("mobile number is valid");
+       // console.log("mobile number is valid");
  
       //   console.log("user checking....")
         const existingUser = await User.findOne({mobileNumber});
@@ -37,12 +37,12 @@ export const signup = async (req, res) => {
         if(!profilePicLocalPath){
          return res.status(401).json({success:false, message:"profilePic is required!"})
         }
-        console.log("profile pic thik hai ")
+      //  console.log("profile pic thik hai ")
    
        try {
 
      const profilepic = await uploadToCloudinary(profilePicLocalPath); 
-     console.log(profilepic.url);
+     //console.log(profilepic.url);
      if(!profilepic.url || !profilepic){
       console.log("profilepic url nahi mil rha")
      } 
@@ -64,7 +64,7 @@ export const signup = async (req, res) => {
             httpOnly:true,
             secure:true,
             sameSite:"Strict",
-            maxAge:1*60*1000
+            maxAge:15*60*1000
                   
            }
 
@@ -75,8 +75,8 @@ export const signup = async (req, res) => {
               maxAge:7*24*60*60*1000
             }
 
-            return res.status(201).cookie("refreshToken", refreshToken,option1)
-                                  .cookie("accessToken", accessToken,option2)
+            return res.status(201).cookie("refreshToken", refreshToken,option2)
+                                  .cookie("accessToken", accessToken,option1)
                                   .json({
                                    success:true,
                                    message:"user created successfull",
@@ -110,7 +110,7 @@ export const signup = async (req, res) => {
    try {
       
              const {mobileNumber, password} = req.body;
-              console.log("type :", typeof mobileNumber);
+             // console.log("type :", typeof mobileNumber);
 
              if([mobileNumber, password].some(field => typeof field !== "string" || field.trim() === "")){
                  console.log("All fields must be valid strings");
@@ -140,7 +140,7 @@ export const signup = async (req, res) => {
               httpOnly:true,
               secure:true,
               sameSite:"strict",
-              maxAge:1*60*1000
+              maxAge:15*60*1000
             }
              const option2 = {
               httpOnly:true,
@@ -173,8 +173,11 @@ export const signup = async (req, res) => {
 
 
 export const logout = async(req, res)=>{
+ // console.log("logout route hit");
  try {
-   User.findById(req.user._id,{$set:{refreshToken:undefined}},{new:true})
+ // console.log("try part is running")
+ // console.log("req.user ka id : ", req.user._id)
+  const user =  await User.findByIdAndUpdate(req.user._id,{$set:{refreshToken:undefined}},{new:true})
  
    const options = {
      httpOnly:true,

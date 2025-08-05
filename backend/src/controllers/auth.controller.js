@@ -15,10 +15,10 @@ export const refreshAccessToken = async (req, res)=>{
    try {
     
       const decodedToken = await jwt.verify(incomingRefreshToken, process.env.REFRESHTOKEN_SECRET);
-      console.log("decodedtoken", decodedToken)
+//      console.log("decodedtoken", decodedToken)
 
       const userId = decodedToken.userId;
-      console.log("userId from backend", userId);
+  //    console.log("userId from backend", userId);
 
       const user = await User.findById(userId);
       if (!user) {
@@ -37,7 +37,7 @@ export const refreshAccessToken = async (req, res)=>{
                 httpOnly:true,
                 secure:isProduction,
                 sameSite:"Strict",
-                maxAge:1*60*1000
+                maxAge:15*60*1000
                }
 
                const option2 = {

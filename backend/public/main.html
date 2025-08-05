@@ -246,10 +246,31 @@ otherUsers.forEach(user => {
   console.error(error)
 }
 
-const logout = document.getElementById()
-
 
   };
+
+  
+const logOut = document.getElementById("logoutBtn");
+logOut.addEventListener("click", async ()=>{
+  try {
+    
+    const res = await fetch("http://localhost:3000/api/v1/users/logout",{
+      method:"POST",
+     credentials:"include"
+    });
+    console.log(res)
+    
+    if(res.ok){
+      window.location.href = "/login.html"
+    } else{
+      const data = await res.json();
+      alert("errr", data.message);
+    }
+
+  } catch (error) {
+    console.error("logout err : "+error)
+  }
+})
 
 </script>
 
