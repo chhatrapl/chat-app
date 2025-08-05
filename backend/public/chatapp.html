@@ -176,25 +176,24 @@ form button {
           document.getElementById("chat-box").scrollTop =  document.getElementById("chat-box").scrollHeight;
         };
 
-const token = localStorage.getItem("token");
+
 const res = await fetch("http://localhost:3000/api/v1/users/allUser", {
   method: "GET",
   headers: {
     "Content-Type": "application/json",
-    Authorization: `Bearer ${token}`  // <-- Yeh zaruri hai
   }
 });
 
      const data = await res.json();
      const currentUser = data.currentUser;
-    // console.log(currentUser.name);
+    console.log(currentUser.name);
      const otherUsers = data.otherUsers;
-    // console.log("otherusers : ",otherUsers)
-   //  console.log("Status:", res.status);
-   // console.log(data);
+    console.log("otherusers : ",otherUsers)
+     console.log("Status:", res.status);
+    console.log(data);
 
-     const uid = window.location.pathname.split("/").pop();
-     //console.log(uid);
+   const params = new URLSearchParams(window.location.search);
+const uid = params.get("id");
 
      const user = otherUsers.find((u) => u._id === uid);
 
@@ -207,7 +206,7 @@ const res = await fetch("http://localhost:3000/api/v1/users/allUser", {
       username.textContent=user.name;
    username.classList.add("user-name")
        profilecontainer.appendChild(img)
-         //profilecontainer.appendChild(username);
+        profilecontainer.appendChild(username);
     }else{
       console.log("user nahi hai ")
     }

@@ -126,8 +126,7 @@
     <h1>Chat App</h1>
     <button class="logout-btn" id="logoutBtn">Logout</button>
     <div class="profile-container" id="profile-container">
-     
-      <div class="user-name" id="user-name"></div>
+    <div class="user-name" id="user-name"></div>
     </div>
   </div>
 
@@ -192,15 +191,62 @@ try {
 
 
 
-  const img = document.createElement("img");
+const container = document.getElementById("profile-container");
 
- img.src = currentUser.profilePic;
- document.getElementById("profile-container").appendChild(img);
+// Create image
+const img = document.createElement("img");
+img.src = currentUser.profilePic;
+img.alt = currentUser.name;
+
+// Insert image before the username div
+const userNameDiv = document.getElementById("user-name");
+container.insertBefore(img, userNameDiv);
+
+// Create name span
+const name = document.createElement("span");
+name.textContent = currentUser.name;
+
+userNameDiv.appendChild(name);
+
+
+const userListContainer = document.getElementById("userList");
+
+otherUsers.forEach(user => {
+  // 🧱 Main user card div
+  const userCard = document.createElement("div");
+  userCard.classList.add("user-card");
+
+  // 🖼️ Image
+  const img = document.createElement("img");
+  img.src = user.profilePic;
+  img.alt = user.name;
+  img.width = 50; // basic size, tune adjust kar lena
+  img.height = 50;
+
+  // 🏷️ Name
+  const name = document.createElement("span");
+  name.textContent = user.name;
+
+  // Add image and name to card
+  userCard.appendChild(img);
+  userCard.appendChild(name);
+
+
+    userCard.addEventListener("click", () => {
+    window.location.href = `chatapp.html?id=${user._id}`;
+  });
+
+
+  // Add card to user list
+  userListContainer.appendChild(userCard);
+});
 
 
 } catch (error) {
   console.error(error)
 }
+
+const logout = document.getElementById()
 
 
   };
