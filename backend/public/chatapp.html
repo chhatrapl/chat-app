@@ -224,7 +224,7 @@ const uid = params.get("id");
     const socket = io();
     const submit = document.getElementById("form");
   
-const roomId = [currentUser.name, user.name].sort().join("-");
+const roomId = [currentUser._id, user._id].sort().join("-");
       // console.log(roomId)
       socket.emit("joinRoom", roomId);
     submit.addEventListener("submit", (e)=>{
