@@ -4,6 +4,7 @@ import app from "./app.js";
 import { connectDB } from "./db/db.js";
 import http, { createServer } from "http";
 import { Server } from "socket.io";
+import { Message } from "./models/message.model.js";
 
 
 const server = createServer(app);
@@ -17,9 +18,14 @@ io.on("connection", (socket)=>{
         console.log(`User joined room: ${roomId}`);
     });
 
-    socket.on("message", ({roomId, message, sender})=>{
+    socket.on("message", async ({roomId, message, sender,receiver})=>{
         console.log("received in backend :", message,roomId)
-        io.to(roomId).emit("receiveMessage", {message,sender});
+        const msg = await Message.create({
+            sender:sender,
+            receiver:receiver,
+            content:message
+        });
+        io.to(roomId).emit("receiveMessage", {message,sender,receiver});
     });
 
     socket.on("disconnect",()=>{

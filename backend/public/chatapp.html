@@ -93,6 +93,7 @@
 }
 
 .sendmsg {
+  user-select: none;
   align-self: flex-end; /* ✅ Will align message bubble to right */
   background-color: #4fc3f7; /* WhatsApp green */
   padding: 10px 15px;
@@ -102,9 +103,19 @@
   font-size: 16px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
   word-wrap: break-word;
+  cursor: pointer;
 }
 
+.delete-anim {
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  transform: translateX(100%);
+  opacity: 0;
+}
+
+
 .receivemsg {
+  user-select: none;
+  cursor: pointer;
   align-self: flex-start;             /* 👈 Push to left */
   background-color: #4fc3f7;          /* White bubble */
   padding: 10px 15px;
@@ -168,17 +179,50 @@ form button {
     </div>
   
 <script src="/socket.io/socket.io.js"></script>
-<script>
-  const socket = io();
-</script>
+
+    <script type="module">
+      
 
 
-    <script>
-      window.onload= async ()=>{
+     function attachDeleteListner(div, msgId, senderId, currentUserId){
+        let startx=0;
+        div.addEventListener('mousedown', (e)=>{
+          startx = e.clientx;
+        });
+
+        div.addEventListener('mouseup', async (e)=>{
+          let endx = e.clientx;
+          if(endx-startx>30){
+            if(senderId == currentUserId){
+              try {
+                const deleteMsg = await fetch(`/api/v1/messages/${id}`,{
+                  method:"DELETE",
+                  credentials:"include"
+                });
+                if(!deleteMsg.ok){
+                  const errData = await deleteMsg.json();
+                  console.log(errData.message);
+                }
+                div.classList.add('delete-anim');
+                setTimeout(()=>{
+                  div.remove();
+                },300);
+              } catch (error) {
+                console.error(error);
+              }
+            }
+          }
+        })
+
+      }
+
 
         function scrollToBottom() {
           document.getElementById("chat-box").scrollTop =  document.getElementById("chat-box").scrollHeight;
         };
+
+
+
 
 
 const res = await fetch("/api/v1/users/allUser", {
@@ -224,7 +268,7 @@ const uid = params.get("id");
     const socket = io();
     const submit = document.getElementById("form");
   
-const roomId = [currentUser.name, user.name].sort().join("-");
+const roomId = [currentUser._id, user._id].sort().join("-");
       // console.log(roomId)
       socket.emit("joinRoom", roomId);
     submit.addEventListener("submit", (e)=>{
@@ -235,18 +279,27 @@ const roomId = [currentUser.name, user.name].sort().join("-");
         return;
       }
 
-       socket.emit("message",({message, roomId, sender:currentUser.name}));
+       socket.emit("message",({message, roomId, sender:currentUser._id, receiver:user._id}));
       console.log("send message:",message);
       document.getElementById("input").value = "";
       const div = document.createElement("div");
       div.textContent= message;
-      div.classList.add("sendmsg")
+      const msgId = message._id;
+      
+      div.classList.add("sendmsg");
       document.getElementById("chat-box").appendChild(div);
+     // console.log("senderId check : ",senderId)
+     // console.log("currentUserId chekc : ",currentUserId)
+     console.log("message id check : ", message._id)
+      console.log("msgId check : ",msgId)
+     // attachDeleteListner(div,senderId, currentUserId,msgId)
+
+
       scrollToBottom();
     });
 
-         socket.on("receiveMessage",({message,sender})=>{
-          if(currentUser.name === sender) return;
+         socket.on("receiveMessage",({message,sender,receiver})=>{
+          if(currentUser._id === sender) return;
 
     const div = document.createElement("div");
       div.textContent= message;
@@ -255,7 +308,50 @@ const roomId = [currentUser.name, user.name].sort().join("-");
       scrollToBottom();
       console.log("recived message: ",message);
     });
-      }
+
+
+
+      const chatRes = await fetch(`/api/v1/messages/${user._id}`,{
+        method:"GET",
+        headers:{
+          "Content-Type":"application/json"
+        }
+      });
+
+       const chatData = await chatRes.json();
+
+       if(chatData.success){
+
+      const allMessage = chatData.messages;
+     // console.log("all message", allMessage)
+         
+      allMessage.forEach(msg => {
+        const div = document.createElement("div");
+        div.textContent=msg.content;
+        const id = msg._id;
+        //console.log("msgid",id)
+        
+       if(msg.sender == currentUser._id){
+        div.classList.add("sendmsg");
+        div.setAttribute("data-id",id);
+       }else{
+        div.classList.add("receivemsg");
+
+       }   
+
+       document.getElementById("chat-box").appendChild(div)
+ 
+
+      })
+      
+       document.getElementById("chat-box").scrollTop = document.getElementById("chat-box").scrollHeight
+             
+       }else{
+         console.error("Error fetching messages:", chatData.message);
+       }
+       
+
+      
     </script>
 </body>
 </html>
