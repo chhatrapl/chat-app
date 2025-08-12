@@ -187,15 +187,48 @@ form button {
      function attachDeleteListner(div, msgId, senderId, currentUserId){
         let startx=0;
         div.addEventListener('mousedown', (e)=>{
-          startx = e.clientx;
+          startx = e.clientX;
         });
 
         div.addEventListener('mouseup', async (e)=>{
-          let endx = e.clientx;
-          if(endx-startx>30){
+          let endx = e.clientX;
+          if(endx-startx>10){
             if(senderId == currentUserId){
               try {
-                const deleteMsg = await fetch(`/api/v1/messages/${id}`,{
+                const deleteMsg = await fetch(`/api/v1/messages/${msgId}`,{
+                  method:"DELETE",
+                  credentials:"include"
+                });
+                if(!deleteMsg.ok){
+                  const errData = await deleteMsg.json();
+                  console.log(errData.message);
+                }
+                div.classList.add('delete-anim');
+                setTimeout(()=>{
+                  div.remove();
+                },300);
+              } catch (error) {
+                console.error(error);
+              }
+            }
+          }
+        })
+
+      }
+
+
+     function attachDeleteForMobile(div, msgId, senderId, currentUserId){
+        let startx=0;
+        div.addEventListener('touchstart', (e)=>{
+          startx = e.touches[0].clientX;
+        }); 
+
+        div.addEventListener('touchend', async (e)=>{
+          let endx = e.changedTouches[0].clientX;
+          if(endx-startx>10){
+            if(senderId == currentUserId){
+              try {
+                const deleteMsg = await fetch(`/api/v1/messages/${msgId}`,{
                   method:"DELETE",
                   credentials:"include"
                 });
@@ -220,8 +253,6 @@ form button {
         function scrollToBottom() {
           document.getElementById("chat-box").scrollTop =  document.getElementById("chat-box").scrollHeight;
         };
-
-
 
 
 
@@ -279,22 +310,19 @@ const roomId = [currentUser._id, user._id].sort().join("-");
         return;
       }
 
-       socket.emit("message",({message, roomId, sender:currentUser._id, receiver:user._id}));
+      socket.emit("message",({message, roomId, sender:currentUser._id, receiver:user._id}));
       console.log("send message:",message);
       document.getElementById("input").value = "";
       const div = document.createElement("div");
       div.textContent= message;
-      const msgId = message._id;
-      
+      div.setAttribute("data-id", "12345678");
+      const id = div.dataset.id;
+      const msg = message
+      console.log("id : ", id)
       div.classList.add("sendmsg");
       document.getElementById("chat-box").appendChild(div);
-     // console.log("senderId check : ",senderId)
-     // console.log("currentUserId chekc : ",currentUserId)
-     console.log("message id check : ", message._id)
-      console.log("msgId check : ",msgId)
-     // attachDeleteListner(div,senderId, currentUserId,msgId)
-
-
+     attachDeleteListner(div, id, msg.sender, currentUser._id);
+     attachDeleteForMobile(div, id, msg.sender, currentUser._id);
       scrollToBottom();
     });
 
@@ -334,17 +362,19 @@ const roomId = [currentUser._id, user._id].sort().join("-");
        if(msg.sender == currentUser._id){
         div.classList.add("sendmsg");
         div.setAttribute("data-id",id);
+        attachDeleteListner(div, id, msg.sender, currentUser._id);
+        attachDeleteForMobile(div, id, msg.sender, currentUser._id);
        }else{
         div.classList.add("receivemsg");
 
        }   
 
        document.getElementById("chat-box").appendChild(div)
- 
-
       })
       
        document.getElementById("chat-box").scrollTop = document.getElementById("chat-box").scrollHeight
+
+    
              
        }else{
          console.error("Error fetching messages:", chatData.message);

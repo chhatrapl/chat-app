@@ -38,6 +38,7 @@ export const deleteMessage = async (req, res)=>{
   //console.log("sender : ", sender);
 
 try {
+if(user.toString()==msg.sender.toString()){
       
         const deletedMsg = await Message.findByIdAndDelete(msgId);
         res.status(201).json({
@@ -45,10 +46,15 @@ try {
             message:"Message deleted"
         })
       
-        return res.status(401).json({
-            success:false,
-            message:"you cant delete this msg"
-        })
+}else{
+  
+   return res.status(403).json({
+        success: false,
+        message: "You are not authorized to delete this message"
+      });
+
+}
+
       
 } catch (error) {
     return res.status(500).json({

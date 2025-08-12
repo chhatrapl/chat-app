@@ -25,9 +25,13 @@ io.on("connection", (socket)=>{
             receiver:receiver,
             content:message
         });
-        io.to(roomId).emit("receiveMessage", {message,sender,receiver});
+        io.to(roomId).emit("receiveMessage", {
+            message,
+            sender,
+            receiver,
+            _id:msg._id
+        });
     });
-
     socket.on("disconnect",()=>{
         console.log("user offline")
     });
